@@ -1,0 +1,64 @@
+Installing CRRCSim on MacOS
+-----------------------
+
+The installation on MacOS is based on libraries and build environment
+provided via MacPorts. See: https://www.macports.org
+
+If you have MacPorts installed, you can create a self contained bundle
+and a dmg file for distribution.
+
+Installing required libraries via MacPorts
+-------------------------------
+
+This assumes that you have MacPorts already installed on your Mac.
+
+     sudo port install plib jpeg portaudio libsdl
+
+If you build directly from the mercurial repository, then you have to
+install the autotools also.
+
+     sudo port install autoconf automake
+
+If you want to build the MacOS Application bundle, you need
+
+     sudo port install dylibbundler
+
+Building and Install
+----------------------------------
+
+This will create an installation in a local directory. If you build directly from the mercurial repository, then
+you have to run the autotools. Assume the following directory structure
+
+~/mycrrcsim
+   |---crrcsim (This is code repository)
+   |---install   (The local installation directory containing the resources)
+   |---build     (The out-of-tree build directory)
+
+Then you can build and install with
+
+    cd ~/mycrrcsim/crrcsim
+    ./autogen.sh
+    cd ../build
+    ../crrcsim/configure --prefix=/Users/USER/mycrrc/install  LDFLAGS=-L/opt/local/lib CPPFLAGS=-I/opt/local/include
+    make
+    make install
+    ../install/bin/crrcsim
+
+The LDFLAGS and CPPFLAGS are required because the libraries installed via MacPorts are located there.
+
+Build the MacOS Application Bundle
+----------------------------
+
+After the previous build and install steps, you can create a MacOS application bundle "crrcsim.app" in the build directory
+
+    make macbundle
+
+You can start the application with
+
+    open crrcsim.app
+
+The DMG file for distribution "crrsim.dmg" is created via
+
+    make macdmg
+
+The DMG creation step will remove the application bundle "crrcsim.app".

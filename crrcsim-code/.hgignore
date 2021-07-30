@@ -1,0 +1,76 @@
+# Use "hg status -i" to show ignored files
+
+# Regular expression, Python/perl syntax:
+syntax: regexp
+
+# Objects and some commonly used object dirs
+^.*\.o$
+^out_cmake/.*$
+^out_cmake_debug/.*$
+^[dD]ebug/.*$
+^[rR]elease/.*$
+
+# Dependencies
+\.deps/.*\.Po$
+
+# Backupdateien
+.*~
+.*\.swp
+
+# created by autotools:
+\bcrrc_config\.h$
+\bstamp-h1$
+\bconfig\.status$
+^config\.cache$
+\bconfig\.log$
+^configure\.lineno$
+^config\.status\.lineno$
+.*Makefile$
+^aclocal\.m4$
+^config\.guess$
+^config\.sub$
+^configure$
+^crrc_config\.h\.in$
+^depcomp$
+^install-sh$
+^missing$
+.*Makefile\.in$
+^mkinstalldirs$
+
+# CVS
+.*/CVS/Entries$
+.*/CVS/Repository$
+.*/CVS/Root$
+^CVS/Entries$
+^CVS/Entries\.Log$
+^CVS/Repository$
+^CVS/Root$
+
+# build results
+^out/.*$
+^SiVeCo/.*$
+^documentation/html/.*$
+\bcrrcsim$
+^autom4te.cache/.*$
+^f3f_score\.txt$
+.*/kernel_module/.*\.cmd$
+.*/kernel_module/.*\.ko$
+.*/kernel_module/.*\.mod\.c$
+.*/kernel_module/.*\.mod$
+.*/kernel_module/.*\.symvers$
+
+# Windows
+^SDL\.dll$
+^crrcsim\.exe$
+^std(out|err)\.txt$
+^win32icon\..*
+
+# uninteressant
+^www/.*$
+toto$
+.*obo$
+
+# Anjuta IDE
+^\.anjuta.*$
+^TODO.tasks
+\.anjuta$
