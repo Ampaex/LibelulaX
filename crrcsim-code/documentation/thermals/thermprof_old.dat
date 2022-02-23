@@ -1,9 +1,0 @@
-#
-# From center to radius, strength is 100%. Then there is boundary_thickness,
-# which is radius/5.
-#
-#
-0 1
-1 1
-1.2 0
-
