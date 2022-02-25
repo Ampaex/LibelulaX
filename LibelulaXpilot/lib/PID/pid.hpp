@@ -1,9 +1,21 @@
 #pragma once
 
 #include <freertos/FreeRTOS.h>
+#include <freertos/queue.h>
 
+// TODO: Utilizar una cola para utilizar la media de error acumulado
 class PID
 {
+private:
+    int64_t _lt; // Microseconds when calculate was last called.
+    int _max;
+    int _min;
+    float _Kp;
+    float _Ki;
+    float _Kd;
+    float _pre_error;
+    float _integral;
+
 public:
     /*
     @param Kp Proportional gain
@@ -12,22 +24,12 @@ public:
     @param max Maximum value of manipulated variable
     @param min Minimum value of manipulated variable
     */
-    PID(double max, double min, double Kp, double Kd, double Ki);
+    PID(int max, int min, float Kp, float Kd, float Ki);
 
     // Returns the manipulated variable given a setpoint and current process value
-    double calculate(double setpoint, double pv);
+    float calculate(float setpoint, float pv);
 
-    void setTuning(double Kp, double Kd, double Ki);
+    void setTuning(float Kp, float Kd, float Ki);
 
     ~PID();
-
-private:
-    int64_t _lt; // Microseconds when calculate was last called.
-    double _max;
-    double _min;
-    double _Kp;
-    double _Kd;
-    double _Ki;
-    double _pre_error;
-    double _integral;
 };
