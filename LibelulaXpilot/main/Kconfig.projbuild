@@ -1,0 +1,9 @@
+menu "Console"
+        
+    config CONSOLE_ENABLE
+        bool "Enable console"
+        default y
+        help
+            It enables the console for debugging or simulating.
+
+endmenu
