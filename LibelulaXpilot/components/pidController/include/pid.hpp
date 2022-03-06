@@ -6,7 +6,10 @@
 enum pidType_t
 {
     NONE = -1,
-    TEST = 1
+    TEST = 1,
+    ELEVATOR = 2,
+    SPEED = 3
+
 };
 
 // Data struct for communication
@@ -50,6 +53,10 @@ public:
     void calculate(float pv);
 
     void setTuning(float Kp, float Ki, float Kd);
+
+    void setP(float Kp){_Kp = Kp;};
+    void setI(float Ki){_Ki = Ki;};
+    void setD(float Kd){_Kd = Kd;};
 
     void setRange(int max, int min);
 

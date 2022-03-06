@@ -5,6 +5,8 @@
 #include "esp_log.h"
 #include "pidController.hpp"
 
+//COMMANDS FOR PID TESTING
+
 /** Arguments used by 'pid_test' function */
 static struct
 {
@@ -29,6 +31,7 @@ static int pidtestFunc(int argc, char **argv)
     PIDdata pidata = PIDdata(TEST, (float)pidtest_args.inputData->dval[0]);
     sendToPID(pidata);
     printf("%f\n", getPIDwithType(TEST)->getValue());
+    //PIDwithType(TEST)->print();
     return 0;
 }
 

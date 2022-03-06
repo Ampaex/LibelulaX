@@ -22,7 +22,7 @@ void PID::calculate(float pv)
 {
     int64_t nt = esp_timer_get_time(); // Now time
 
-    float dt = (nt - _lt) / 1000000.; // Differential time since calculate was last called
+    float dt = (nt - _lt) / 500000.; // Differential time since calculate was last called in a period of a half second
 
     _lt = nt;
 
@@ -57,9 +57,6 @@ void PID::calculate(float pv)
 
 void PID::setTuning(float Kp, float Ki, float Kd)
 {
-    if (Kp < 0 || Ki < 0 || Kd < 0)
-        return;
-
     _Kp = Kp;
     _Ki = Ki;
     _Kd = Kd;

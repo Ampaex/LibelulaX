@@ -1,0 +1,47 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+	<generic>
+        <comment>
+        <![CDATA[
+            Usage:
+            To controller:  fgfs --generic=serial,out,1,/dev/ttyUSB0,115200,LibelulaXProtocol (1Hz)
+            From controller: fgfs --generic=serial,in,1,/dev/ttyUSB0,115200,LibelulaXProtocol
+            Put me in /usr/share/games/flightgear/Protocol/
+        ]]>
+        </comment>
+
+        <output>
+            <binary_mode>false</binary_mode>
+            <line_separator>\n</line_separator>
+            <var_separator> </var_separator>
+            <preamble></preamble>
+            <postamble></postamble>
+
+            <chunk>
+                <name>Pitch</name>
+                <node>/orientation/pitch-deg</node>
+                <type>double</type>
+                <format>sim_flight_data --pit %f</format>
+            </chunk>
+
+        </output>
+
+        <input>
+            
+            <binary_mode>false</binary_mode>
+            <line_separator>*\n</line_separator>
+            <var_separator> </var_separator>
+
+            <chunk>
+                <name>Elevator</name>
+                <node>/controls/flight/elevator</node>
+                <type>float</type>
+            </chunk> 
+ 
+        </input>
+
+	</generic>
+
+</PropertyList>

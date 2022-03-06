@@ -20,12 +20,14 @@
 #include "cmd_wifi.h"
 #include "cmd_nvs.h"
 #include "cmd_pidtest.hpp"
+#include "cmd_sim.hpp"
 #include "esp_vfs_fat.h"
 #include "nvs.h"
 #include "nvs_flash.h"
 
 static const char *TAG = "Console";
-#define PROMPT_STR CONFIG_IDF_TARGET
+//#define PROMPT_STR CONFIG_IDF_TARGET
+#define PROMPT_STR ""
 
 static void initialize_nvs(void)
 {
@@ -119,14 +121,15 @@ void taskConsole(void)
     register_wifi();
     register_nvs();
     register_pidtest();
+    register_sim();
 
     /* Prompt to be printed before each line.
      * This can be customized, made dynamic, etc.
      */
-    const char *prompt = LOG_COLOR_I PROMPT_STR "> " LOG_RESET_COLOR;
+    //const char *prompt = LOG_COLOR_I PROMPT_STR "> " LOG_RESET_COLOR;
+    const char *prompt = PROMPT_STR;
 
     printf("\n"
-           "This is an example of ESP-IDF console component.\n"
            "Type 'help' to get the list of commands.\n"
            "Use UP/DOWN arrows to navigate through command history.\n"
            "Press TAB when typing command name to auto-complete.\n"
@@ -145,7 +148,8 @@ void taskConsole(void)
         /* Since the terminal doesn't support escape sequences,
          * don't use color codes in the prompt.
          */
-        prompt = PROMPT_STR "> ";
+        //prompt = PROMPT_STR "> ";
+        prompt = PROMPT_STR;
 #endif // CONFIG_LOG_COLORS
     }
 

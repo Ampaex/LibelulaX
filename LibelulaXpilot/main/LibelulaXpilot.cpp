@@ -3,6 +3,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "pid.hpp"
+#include "pidController.hpp"
 
 extern "C" void app_main(void)
 {
