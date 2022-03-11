@@ -1,9 +1,21 @@
-menu "Console"
-        
-    config CONSOLE_ENABLE
-        bool "Enable console"
-        default y
-        help
-            It enables the console for debugging or simulating.
+menu "APPLICATION"
+    menu "Console"
+            
+        config CONSOLE_ENABLE
+            bool "Enable console"
+            default y
+            help
+                It enables the console for debugging or simulating.
 
+    endmenu
+
+    menu "Autopilot"
+            
+        config AP_UPDATE_PERIOD
+            int "Autopilot update period (ms)"
+            default 250
+            help
+                Update period of the autopilot state machine.
+
+    endmenu
 endmenu

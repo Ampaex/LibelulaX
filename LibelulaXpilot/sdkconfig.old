@@ -129,10 +129,21 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
+# APPLICATION
+#
+
+#
 # Console
 #
 CONFIG_CONSOLE_ENABLE=y
 # end of Console
+
+#
+# Autopilot
+#
+CONFIG_AP_UPDATE_PERIOD=250
+# end of Autopilot
+# end of APPLICATION
 
 #
 # Compiler options

@@ -3,9 +3,11 @@
 #include "argtable3/argtable3.h"
 #include "esp_console.h"
 #include "esp_log.h"
-#include "pidController.hpp"
+#include "pid.hpp"
 
 //COMMANDS FOR PID TESTING
+float value;
+static PID testPid(1, -1, 0.002, 0.001, 0.002, &value);
 
 /** Arguments used by 'pid_test' function */
 static struct
@@ -24,13 +26,11 @@ static int pidtestFunc(int argc, char **argv)
     }
     if(pidtest_args.setpoint->count > 0)
     {
-        PIDdata setp = PIDdata(TEST, (float)pidtest_args.setpoint->dval[0]);
-        setPIDsetpoint(setp);
+        testPid.setSetpoint((float)pidtest_args.setpoint->dval[0]);
     }
-    
-    PIDdata pidata = PIDdata(TEST, (float)pidtest_args.inputData->dval[0]);
-    sendToPID(pidata);
-    printf("%f\n", getPIDwithType(TEST)->getValue());
+
+    testPid.calculate((float)pidtest_args.inputData->dval[0]);
+    printf("%f\n", testPid.getValue());
     //PIDwithType(TEST)->print();
     return 0;
 }

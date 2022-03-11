@@ -1,7 +1,6 @@
 {
     "idf.adapterTargetName": "esp32",
     "idf.espIdfPath": "${env:IDF_PATH}",
-    "idf.toolsPath": "${env:IDF_TOOLS_PATH}",
     "files.associations": {
         "freertos.h": "c",
         "esp_system.h": "c",
@@ -10,7 +9,8 @@
         "nvs_flash.h": "c",
         "linenoise.h": "c",
         "argtable3.h": "c",
-        "streambuf": "cpp"
+        "streambuf": "cpp",
+        "*.tcc": "cpp"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",
