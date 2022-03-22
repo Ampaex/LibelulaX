@@ -3,6 +3,8 @@
 #include "aircraft.hpp"
 #include "esp_log.h"
 
+static GPS_coordinate nextWaypoint;
+
 struct update_args
 {
     Autopilot *autopilot_arg;
@@ -12,55 +14,101 @@ void taskUpdateAutopilot(update_args *pArgs)
 {
     Autopilot *_autopilot = pArgs->autopilot_arg;
     Aircraft *_aircraft = pArgs->aircraft_arg;
+    float distance;
     while (true)
     {
         switch (_autopilot->getCurrentState())
         {
         case INIT:
-            vTaskDelay(pdMS_TO_TICKS(14000));
-            if (_aircraft->getAltitude() < 6.)
+            vTaskDelay(pdMS_TO_TICKS(20000));
+            if (_aircraft->getAltitude() < 3.)
                 _autopilot->setCurrentState(TAKEOFF);
             else
                 _autopilot->setCurrentState(ASCENSION);
             break;
 
         case TAKEOFF:
-            if (_aircraft->getAltitude() > 6.)
+            if (_aircraft->getAltitude() > 1.)
+            {
                 _autopilot->setCurrentState(ASCENSION);
+            }
+
+            if (!_autopilot->gps.getHome())
+            {
+                _autopilot->gps.setHome(_autopilot->gps.getCurrentPosition());
+                ESP_LOGI(__func__, "HOME: %f, %f\n", _autopilot->gps.getCurrentPosition().latitude, _autopilot->gps.getCurrentPosition().longitude);
+            }
 
             _autopilot->clearPid();
             _autopilot->clearAltitudeControl();
             _autopilot->setAltitudeControl(350.);
-            for(int i = 0; i<100; i++)   //Progressive acceleration
+            _autopilot->disablePathTracking();
+            for (int i = 0; i < 100; i++) // Progressive acceleration
             {
-                _aircraft->setThrottle(i*0.01);
-                vTaskDelay(pdMS_TO_TICKS(50));
+                _aircraft->setThrottle(i * 0.01);
+                vTaskDelay(pdMS_TO_TICKS(100));
             }
             break;
 
         case ASCENSION:
             if (_aircraft->getAltitude() > _autopilot->getAltitudeTarget())
+            {
                 _autopilot->setCurrentState(STABLE);
-            _autopilot->setAltitudeControl(350.); //Target altitude
-            _aircraft->setThrottle(0.8);
+            }
+            _autopilot->setAltitudeControl(350.); // Target altitude
+            _aircraft->setThrottle(0.9);
             break;
 
         case STABLE:
-            _autopilot->setAltitudeControl(350.); //Target altitude
-            _aircraft->setThrottle(0.7);
-            break;
-
-        case TO_CHECKPOINT:
+            if (_aircraft->altitude > 350. && _aircraft->altitude < 360.)
+            {
+                _autopilot->clearPathTracking();
+                _autopilot->setCurrentState(NEW_CHECKPOINT);
+            }
+            _autopilot->setAltitudeControl(350.); // Target altitude
+            _aircraft->setThrottle(0.9);
             break;
 
         case NEW_CHECKPOINT:
+            _autopilot->enablePathTracking();
+            if (_autopilot->gps.getPathSize() < 1)
+            {
+                nextWaypoint = _autopilot->gps.getHome();
+                ESP_LOGI(__func__, "TO HOME\n");
+                _autopilot->setCurrentState(TO_HOME);
+            }
+            else
+            {
+                nextWaypoint = _autopilot->gps.popCoord();
+                _autopilot->setCurrentState(TO_CHECKPOINT);
+                ESP_LOGI(__func__, "NEW WAYPOINT: %f, %f\n", nextWaypoint.latitude, nextWaypoint.longitude);
+            }
+
+            break;
+
+        case TO_CHECKPOINT:
+            distance = _autopilot->gps.distanceToCoord(nextWaypoint);
+            if (distance < 0.08) // If we're closer than 80m go to the next checkpoint
+            {
+                _autopilot->setCurrentState(NEW_CHECKPOINT);
+            }
             break;
 
         case TO_HOME:
+            distance = _autopilot->gps.distanceToCoord(nextWaypoint);
+            if (distance < 0.08) // If we're closer than 80m go to the next checkpoint
+            {
+                _autopilot->setCurrentState(ORBIT_HOME);
+            }
             break;
 
         case ORBIT_HOME:
+            _autopilot->disablePathTracking();
+            _aircraft->rudder = .4;
             break;
+
+        case PAUSE:
+            vTaskDelay(pdMS_TO_TICKS(200));
 
         default:
             break;
@@ -74,14 +122,20 @@ Autopilot::Autopilot(Aircraft *pAircraft, ApStateMachine_t initialState) : aircr
                                                                            enabled(true),
                                                                            currentState(initialState),
                                                                            pitch(1, -1, -0.009, -0.0005, -0.009, &(pAircraft->elevator)),
-                                                                           yaw(1, -1, 0.003, 0.0005, 0.002, &(pAircraft->rudder)),
+                                                                           yaw(0.7, -0.7, 0.012, 0.0005, 0.00128, &(pAircraft->rudder), true, 360.), // 0.002
                                                                            roll(1, -1, 0.009, 0.0005, 0.009, &(pAircraft->aileron)),
                                                                            speed(1, -1, 0.003, 0.0005, 0.002, &(pAircraft->throttle)),
-                                                                           altitudeControl(20, -20, 0.1, 0.001, 0.12, &pitch)
+                                                                           altitudeControl(20, -20, 0.09, 0.0003, 0.06, &pitch)
 {
     static update_args pArgs = {this, pAircraft};
     speed.disable();
+    yaw.disable(); // Will be enabled on the to_checkpoint state
     xTaskCreate((TaskFunction_t)&taskUpdateAutopilot, "Autopilot_update", 2048, &pArgs, 5, &updateHandler);
+
+    vector<GPS_coordinate> path = {{40.47644, -3.51327}, {40.50240, -3.51499}, {40.48792, -3.62282}};
+    gps.appendPath(path); // TODO: Remove artificial coordinate
+
+    //gps.appendCoordinate({40.47644, -3.51327});
 }
 
 Autopilot::~Autopilot()
@@ -135,11 +189,6 @@ void Autopilot::reportPitch(float input)
     pitch.calculate(input);
 }
 
-void Autopilot::reportYaw(float input)
-{
-    yaw.calculate(input);
-}
-
 void Autopilot::reportRoll(float input)
 {
     roll.calculate(input);
@@ -150,13 +199,25 @@ void Autopilot::reportSpeed(float input)
     speed.calculate(input);
 }
 
-void Autopilot::reportAltitude(float input)
-{
-    altitudeControl.calculate(input);
-}
-
 void Autopilot::setAltitudeControl(float newAltitude)
 {
     altitudeControl.enable();
     altitudeControl.setSetpoint(newAltitude);
-} 
+}
+
+void Autopilot::reportCoordinate(GPS_coordinate coord)
+{
+    gps.setCurrentPosition(coord);
+    aircraft->altitude = coord.altitude;
+    altitudeControl.calculate(coord.altitude);
+}
+
+void Autopilot::reportCompass(float compass)
+{
+    gps.setCompass(compass);
+    float compassAngle = gps.compassToCoord(nextWaypoint);
+    // if(yaw.isEnabled())ESP_LOGI(__func__, "COMPASS2: %f\nCALCANGLE: %f \nRECTANGLE: %f\n", compass2, compassAngle, rectifiedAngle);
+    //  printf("compass2: %f\n",compass2);
+    yaw.setSetpoint(compassAngle);
+    yaw.calculate(compass);
+}

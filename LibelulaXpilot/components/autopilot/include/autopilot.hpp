@@ -2,6 +2,7 @@
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
 #include "pid.hpp"
+#include "gps.hpp"
 
 // Autopilot state machine
 enum ApStateMachine_t
@@ -11,8 +12,8 @@ enum ApStateMachine_t
     TAKEOFF = 1,
     ASCENSION = 2,
     STABLE = 3,
-    TO_CHECKPOINT = 4,
-    NEW_CHECKPOINT = 5,
+    NEW_CHECKPOINT = 4,
+    TO_CHECKPOINT = 5,
     TO_HOME = 6,
     ORBIT_HOME = 7
 };
@@ -40,6 +41,8 @@ private:
 
 public:
 
+    GPS gps;
+
     bool isEnabled();
     void enable();
     void disable();
@@ -51,17 +54,16 @@ public:
     // Input the current pitch
     void reportPitch(float input);
 
-    // Input the current yaw
-    void reportYaw(float input);
-
     // Input the current roll
     void reportRoll(float input);
 
-    // Input the current altitude
-    void reportAltitude(float input);
-
     // Input the current speed and enables the speed control
     void reportSpeed(float input);
+
+    // Input the current coordinate
+    void reportCoordinate(GPS_coordinate coord);
+
+    void reportCompass(float compass);
 
     /**
      * @brief Set the pid values for getting an orientation.
@@ -91,6 +93,14 @@ public:
 
     //@return The target control altitude.
     float getAltitudeTarget(){return altitudeControl.getSetpoint();};
+
+    void disablePathTracking(){yaw.disable();};
+
+    void enablePathTracking(){yaw.enable();};
+
+    void clearPathTracking(){yaw.clear();};
+
+    void printYaw(){yaw.print();};
 
     // Clear every pid temporal variable
     void clearPid();

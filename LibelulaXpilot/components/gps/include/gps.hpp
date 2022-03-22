@@ -9,7 +9,7 @@ using namespace std;
 // GPS coordinate
 struct GPS_coordinate
 {
-    float latitude, longitude, altitude;
+    double latitude, longitude, altitude;
 
     // @brief Construct a new empty gps coordinate.
     GPS_coordinate();
@@ -19,15 +19,18 @@ struct GPS_coordinate
      *
      * @param latitude Coordinate latitude.
      * @param longitude Coordinate longitude.
-     * @param altitude Altitude. If left empty or NULL then altitude will not be changed.
+     * @param altitude Altitude. If left empty then altitude will not be changed.
      */
-    GPS_coordinate(float latitude, float longitude, float altitude = 0.);
+    GPS_coordinate(double latitude, double longitude, double altitude = 0.);
     
     //Convert units into radians
     GPS_coordinate toRadians();
 
     //Converts units into degrees
     GPS_coordinate toDegrees();
+
+    //Check if this coordinate has not been initialized
+    operator bool() const {return latitude != 0. || longitude != 0. || altitude != 0.;};
 };
 
 class GPS
@@ -37,6 +40,8 @@ private:
     vector<GPS_coordinate> path = {};
 
     GPS_coordinate currentPosition;
+    GPS_coordinate home;
+    float currentCompass;
 
 public:
     /**
@@ -60,6 +65,11 @@ public:
     // Delete the old path and start a new one
     void newPath(vector<GPS_coordinate> coords);
 
+    size_t getPathSize();
+
+    //@return Return the next coordinate and erase it
+    GPS_coordinate popCoord();
+
     // Clear every coordinate in path
     void clearPath(void);
 
@@ -68,6 +78,13 @@ public:
     void setCurrentPosition(GPS_coordinate coord);
 
     GPS_coordinate getCurrentPosition();
+
+    void setHome(GPS_coordinate coord){home = coord;};
+
+    GPS_coordinate getHome(){return home;};
+
+    void setCompass(float compass){currentCompass = compass;};
+    float getCompass(){return currentCompass;};
 
     /**
      * @brief Compass angle from current position towards desired coordinate.
@@ -84,7 +101,7 @@ public:
      * @param coord Destination point.
      * @return Distance in Km.
      */
-    float distanceToCoord(GPS_coordinate coord);
+    double distanceToCoord(GPS_coordinate coord);
 
     /**
      * @brief Compass angle from A towards B coordinates.
@@ -103,6 +120,6 @@ public:
      * @param coord_B Point B.
      * @return Distance in Km.
      */
-    float distanceBetweenCoord(GPS_coordinate coord_A, GPS_coordinate coord_B);
+    double distanceBetweenCoord(GPS_coordinate coord_A, GPS_coordinate coord_B);
 };
 

@@ -19,30 +19,25 @@ def writePort(port, string):
     port.write(str(string).encode("UTF-8"))
     print(port.readline().decode("Ascii"))
 
-prevSize=0
-def hasChanged(filename):
-    global prevSize
-    actualSize = os.stat(filename).st_size
-
-    if prevSize == actualSize:
-        return False
-    else:
-        prevSize = actualSize
-        return True
 
 def main():
     serialPort = connectPort("/dev/ttyUSB0")
     with open("inFile", "w") as inputFile:
-        with open("outFile", "r") as outputFile:
+        with open("outFile", "r+") as outputFile:
 
             error = False
             while(error is not True):
                 readLine = readPort(serialPort)
                 if readLine is not None:
+                    inputFile.truncate(0)
                     inputFile.write(readLine)
                     inputFile.flush()
-                if(hasChanged("outFile")):
-                    writePort(serialPort, outputFile.readlines()[-1])
+
+                lines = outputFile.readlines()
+                if(len(lines)>0):
+                    writePort(serialPort, lines[0])
+                    outputFile.truncate(0)
+                time.sleep(0.02)
 
 
 

@@ -8,8 +8,8 @@ class PID
 {
 private:
     int64_t _lt; // Microseconds since calculate was last called.
-    int _max;
-    int _min;
+    float _max;
+    float _min;
     float _Kp, _Ki, _Kd;
     float _pre_error;
     float _integral;
@@ -19,8 +19,14 @@ private:
 
     float _setpoint;
 
-    bool enabled = true;
-    bool secondaryPid = false; //Tells if this PID is controlling another.
+    bool _enabled = true;
+    bool _secondaryPid = false; //Tells if this PID is controlling another.
+
+    bool _circular = false;     //Whether the input is circular or not
+    float _minC = 0.;    //Minimum input value
+    float _maxC = 0.;    //Maximum input value
+    float _midpoint;
+    float _range;
 
 
 public:
@@ -31,8 +37,11 @@ public:
     @param max Maximum value of manipulated variable
     @param min Minimum value of manipulated variable
     @param outputVar Variable to store the resulting value.
+    @param circularInput If the input variable is circular. (The ends are connected)
+    @param maxC Maximum value for input.
+    @param minC Minimum value for input.
     */
-    PID(int max, int min, float Kp, float Ki, float Kd, float* outputVar);
+    PID(float max, float min, float Kp, float Ki, float Kd, float* outputVar, bool circularInput = false, float maxC=0., float minC=0.);
 
     /* Constructor for secondary PID, which controls another.
     @param Kp Proportional gain
@@ -42,7 +51,7 @@ public:
     @param min Minimum value of manipulated variable
     @param outputVar Variable to store the resulting value.
     */
-    PID(int max, int min, float Kp, float Ki, float Kd, PID* outputPid);
+    PID(float max, float min, float Kp, float Ki, float Kd, PID* outputPid);
 
 
     // Receive new data and processses it to a new value trying to achieve the setpoint.
@@ -53,7 +62,7 @@ public:
     void setI(float Ki) { _Ki = Ki; };
     void setD(float Kd) { _Kd = Kd; };
 
-    void setRange(int max, int min);
+    void setRange(float max, float min);
 
     void setSetpoint(float newSetPoint);
     float getSetpoint(){return _setpoint;};

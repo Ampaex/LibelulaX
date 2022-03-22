@@ -10,7 +10,8 @@
         "linenoise.h": "c",
         "argtable3.h": "c",
         "streambuf": "cpp",
-        "*.tcc": "cpp"
+        "*.tcc": "cpp",
+        "cmath": "cpp"
     },
     "idf.openOcdConfigs": [
         "interface/ftdi/esp32_devkitj_v1.cfg",

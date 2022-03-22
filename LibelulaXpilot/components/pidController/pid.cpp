@@ -4,42 +4,57 @@
 
 using namespace std;
 
-PID::PID(int max, int min, float Kp, float Ki, float Kd, float *outputVar) : _lt(esp_timer_get_time()),
-                                                                             _max(max),
-                                                                             _min(min),
-                                                                             _Kp(Kp),
-                                                                             _Ki(Ki),
-                                                                             _Kd(Kd),
-                                                                             _pre_error(0),
-                                                                             _integral(0),
-                                                                             _outputVar(outputVar),
-                                                                             _setpoint(0.)
+PID::PID(float max, float min, float Kp, float Ki, float Kd, float *outputVar, bool circularInput, float maxC, float minC) : _lt(esp_timer_get_time()),
+                                                                                                                             _max(max),
+                                                                                                                             _min(min),
+                                                                                                                             _Kp(Kp),
+                                                                                                                             _Ki(Ki),
+                                                                                                                             _Kd(Kd),
+                                                                                                                             _pre_error(0),
+                                                                                                                             _integral(0),
+                                                                                                                             _outputVar(outputVar),
+                                                                                                                             _setpoint(0.),
+                                                                                                                             _circular(circularInput),
+                                                                                                                             _minC(minC),
+                                                                                                                             _maxC(maxC)
 {
+    _range = maxC - minC;
+    _midpoint = (_range/2.) + minC;
 }
 
-PID::PID(int max, int min, float Kp, float Ki, float Kd, PID *outputPid) : _lt(esp_timer_get_time()),
-                                                                           _max(max),
-                                                                           _min(min),
-                                                                           _Kp(Kp),
-                                                                           _Ki(Ki),
-                                                                           _Kd(Kd),
-                                                                           _pre_error(0),
-                                                                           _integral(0),
-                                                                           _outputPid(outputPid),
-                                                                           _setpoint(0.),
-                                                                           secondaryPid(true)
+PID::PID(float max, float min, float Kp, float Ki, float Kd, PID *outputPid) : _lt(esp_timer_get_time()),
+                                                                               _max(max),
+                                                                               _min(min),
+                                                                               _Kp(Kp),
+                                                                               _Ki(Ki),
+                                                                               _Kd(Kd),
+                                                                               _pre_error(0),
+                                                                               _integral(0),
+                                                                               _outputPid(outputPid),
+                                                                               _setpoint(0.),
+                                                                               _secondaryPid(true)
 {
 }
 
 void PID::calculate(float pv)
 {
     int64_t nt = esp_timer_get_time(); // Now time
-    float dt = (nt - _lt) / 500000.; // Differential time since calculate was last called in a period of a half second
+    double dt = (nt - _lt) / 500000.;  // Differential time since calculate was last called in a period of a half second
     _lt = nt;
-    if (enabled)
+    if (_enabled)
     {
+        float error;
         // Calculate error
-        float error = _setpoint - pv;
+        if (_circular)
+        {
+            error = _setpoint - pv;
+            if (fabs(error) > _midpoint)
+                error = (error > 0.) ? error - _range : _range + error;
+        }
+        else
+        {
+            error = _setpoint - pv;
+        }
 
         // Proportional term
         float Pout = _Kp * error;
@@ -64,7 +79,7 @@ void PID::calculate(float pv)
         // Save error to previous error
         _pre_error = error;
 
-        if (secondaryPid)
+        if (_secondaryPid)
         {
             _outputPid->setSetpoint(output);
         }
@@ -82,7 +97,7 @@ void PID::setTuning(float Kp, float Ki, float Kd)
     _Kd = Kd;
 }
 
-void PID::setRange(int max, int min)
+void PID::setRange(float max, float min)
 {
     _max = max;
     _min = min;
@@ -101,7 +116,7 @@ void PID::clear()
 
 void PID::print()
 {
-    printf("PIDclass\n _lt: %ld\n _max: %d\n _min: %d\n _Kp: %f\n _Ki: %f\n _Kd: %f\n _pre_error: %f\n _integral: %f\n _outputVar: %f\n _setpoint: %f\n", (long int)_lt, _max, _min, _Kp, _Ki, _Kd, _pre_error, _integral, *_outputVar, _setpoint);
+    printf("PIDclass\n _lt: %ld\n _max: %f\n _min: %f\n _Kp: %f\n _Ki: %f\n _Kd: %f\n _pre_error: %f\n _integral: %f\n _outputVar: %f\n _setpoint: %f\n _enabled: %d\n", (long int)_lt, _max, _min, _Kp, _Ki, _Kd, _pre_error, _integral, *_outputVar, _setpoint, _enabled);
 }
 
 PID::~PID()
@@ -110,15 +125,15 @@ PID::~PID()
 
 bool PID::isEnabled()
 {
-    return enabled;
+    return _enabled;
 }
 
 void PID::enable()
 {
-    enabled = true;
+    _enabled = true;
 }
 
 void PID::disable()
 {
-    enabled = false;
+    _enabled = false;
 }

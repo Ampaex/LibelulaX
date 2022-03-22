@@ -23,20 +23,81 @@
                 <name>Pitch</name>
                 <node>/orientation/pitch-deg</node>
                 <type>double</type>
-                <format>sim_flight_data --pit %f</format>
+                <format>sim_flight_data --pit=%f</format>
             </chunk>
+            
+            <chunk>
+                <name>Roll</name>
+                <node>/orientation/roll-deg</node>
+                <type>double</type>
+                <format>--rol=%f</format>
+            </chunk>
+                
+            <chunk>
+                <name>Yaw</name>
+                <node>/orientation/yaw-rate-degps</node>
+                <type>double</type>
+                <format>--yaw=%f</format>
+            </chunk>
+            
+            <chunk>
+                <name>Altitude</name>
+                <node>/position/altitude-agl-ft</node>
+                <type>double</type>
+                <format>--alt=%f</format>
+            </chunk>
+            
+            <chunk>
+                <name>Longitude</name>
+                <node>/position/longitude-deg</node>
+                <type>double</type>
+                <format>--lon=%f</format>
+            </chunk>
+            
+            <chunk>
+                <name>Latitude</name>
+                <node>/position/latitude-deg</node>
+                <type>double</type>
+                <format>--lat=%f</format>
+            </chunk>
+            
+            <chunk>
+                <name>Compass</name>
+                <node>/orientation/true-heading-deg</node>
+                <type>double</type>
+                <format>--com=%f</format>
+            </chunk>
+            
 
         </output>
 
         <input>
             
             <binary_mode>false</binary_mode>
-            <line_separator>*\n</line_separator>
-            <var_separator> </var_separator>
+            <line_separator>\n</line_separator>
+            <var_separator>,</var_separator>
 
             <chunk>
                 <name>Elevator</name>
                 <node>/controls/flight/elevator</node>
+                <type>float</type>
+            </chunk> 
+            
+            <chunk>
+                <name>Aileron</name>
+                <node>/controls/flight/aileron</node>
+                <type>float</type>
+            </chunk> 
+            
+            <chunk>
+                <name>Rudder</name>
+                <node>/controls/flight/rudder</node>
+                <type>float</type>
+            </chunk> 
+            
+            <chunk>
+                <name>Throttle</name>
+                <node>/controls/engines/engine/throttle</node>
                 <type>float</type>
             </chunk> 
  
