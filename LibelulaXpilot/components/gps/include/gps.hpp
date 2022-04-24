@@ -4,6 +4,13 @@
 
 #define EARTH_RADIUS 6372.795477598
 
+/**
+ * @brief Simple conversion, minute / meter. (Mean between lat and long).
+ *          Only for small distances.
+ */
+#define gps_meterToMinuteLat(meter) meter / 18490.526 
+#define gps_meterToMinuteLon(meter) meter / 14630.04
+
 using namespace std;
 
 // GPS coordinate
@@ -70,8 +77,19 @@ public:
     //@return Return the next coordinate and erase it
     GPS_coordinate popCoord();
 
+    GPS_coordinate getCoordAt(int i);
+
     // Clear every coordinate in path
     void clearPath(void);
+
+    /**
+     * @brief Clear the path and orbit in circles around designated point.
+     * 
+     * @param center Coordinate center of the circle.
+     * @param radius Radius of the circle. (In meters)
+     * @param nPoints Number of points of the circumference.
+     */
+    void orbitCoord(GPS_coordinate center, float radius, int nPoints);
 
     //################## DIRECTION CONTROL ##################
 
@@ -96,7 +114,7 @@ public:
 
     /**
      * @brief Distance between current position and the desired coordinate.
-     * The calculation could have a distance error of 0.3%, especially at the polar extremes, and for long distances through various parallels.
+     * The calculation could have a distance error of 0.3%, especially at the polar extremes and for long distances through various parallels.
      * 
      * @param coord Destination point.
      * @return Distance in Km.

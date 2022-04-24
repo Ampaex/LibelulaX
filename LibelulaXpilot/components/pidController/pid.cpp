@@ -39,7 +39,7 @@ PID::PID(float max, float min, float Kp, float Ki, float Kd, PID *outputPid) : _
 void PID::calculate(float pv)
 {
     int64_t nt = esp_timer_get_time(); // Now time
-    double dt = (nt - _lt) / 500000.;  // Differential time since calculate was last called in a period of a half second
+    double dt = (nt - _lt) / 330000.;  // Differential time since calculate was last called in a period of a half second
     _lt = nt;
     if (_enabled)
     {

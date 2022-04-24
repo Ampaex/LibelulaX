@@ -90,6 +90,10 @@ public:
     //Drive to the new altitude.
     void setAltitudeControl(float newAltitude);
     void clearAltitudeControl(){altitudeControl.clear();};
+    void disableAltitudeControl();
+    void enableAltitudeControl();
+
+    void disablePitch(){pitch.disable();};
 
     //@return The target control altitude.
     float getAltitudeTarget(){return altitudeControl.getSetpoint();};

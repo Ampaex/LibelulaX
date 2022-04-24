@@ -3,6 +3,8 @@
 #include "aircraft.hpp"
 #include "esp_log.h"
 
+#define N_ORBITPOINTS 16 //Number of orbit points.
+
 static GPS_coordinate nextWaypoint;
 
 struct update_args
@@ -15,12 +17,17 @@ void taskUpdateAutopilot(update_args *pArgs)
     Autopilot *_autopilot = pArgs->autopilot_arg;
     Aircraft *_aircraft = pArgs->aircraft_arg;
     float distance;
+    int orbitCounter = 0;
     while (true)
     {
         switch (_autopilot->getCurrentState())
         {
         case INIT:
-            vTaskDelay(pdMS_TO_TICKS(20000));
+            _aircraft->elevator = 0;
+            _autopilot->disableAltitudeControl();
+            _autopilot->disablePitch();
+            vTaskDelay(pdMS_TO_TICKS(23000));
+
             if (_aircraft->getAltitude() < 3.)
                 _autopilot->setCurrentState(TAKEOFF);
             else
@@ -42,6 +49,7 @@ void taskUpdateAutopilot(update_args *pArgs)
             _autopilot->clearPid();
             _autopilot->clearAltitudeControl();
             _autopilot->setAltitudeControl(350.);
+            _autopilot->enableAltitudeControl();
             _autopilot->disablePathTracking();
             for (int i = 0; i < 100; i++) // Progressive acceleration
             {
@@ -71,6 +79,7 @@ void taskUpdateAutopilot(update_args *pArgs)
 
         case NEW_CHECKPOINT:
             _autopilot->enablePathTracking();
+            _aircraft->setThrottle(0.9);
             if (_autopilot->gps.getPathSize() < 1)
             {
                 nextWaypoint = _autopilot->gps.getHome();
@@ -81,6 +90,7 @@ void taskUpdateAutopilot(update_args *pArgs)
             {
                 nextWaypoint = _autopilot->gps.popCoord();
                 _autopilot->setCurrentState(TO_CHECKPOINT);
+                _autopilot->clearPathTracking();
                 ESP_LOGI(__func__, "NEW WAYPOINT: %f, %f\n", nextWaypoint.latitude, nextWaypoint.longitude);
             }
 
@@ -96,15 +106,16 @@ void taskUpdateAutopilot(update_args *pArgs)
 
         case TO_HOME:
             distance = _autopilot->gps.distanceToCoord(nextWaypoint);
-            if (distance < 0.08) // If we're closer than 80m go to the next checkpoint
+            if (distance < 0.3)
+                _aircraft->setThrottle(0.2);
+            if (distance < 0.1) // If we're closer than 80m go to the next checkpoint
             {
                 _autopilot->setCurrentState(ORBIT_HOME);
             }
             break;
 
         case ORBIT_HOME:
-            _autopilot->disablePathTracking();
-            _aircraft->rudder = .4;
+            _aircraft->setThrottle(0.2);
             break;
 
         case PAUSE:
@@ -201,9 +212,19 @@ void Autopilot::reportSpeed(float input)
 
 void Autopilot::setAltitudeControl(float newAltitude)
 {
-    altitudeControl.enable();
     altitudeControl.setSetpoint(newAltitude);
 }
+
+void Autopilot::disableAltitudeControl()
+{
+    altitudeControl.disable();
+}
+
+void Autopilot::enableAltitudeControl()
+{
+    pitch.enable();
+    altitudeControl.enable();
+};
 
 void Autopilot::reportCoordinate(GPS_coordinate coord)
 {
