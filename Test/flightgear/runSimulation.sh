@@ -8,6 +8,6 @@ echo 'SERIALPARSER STARTING...'
 konsole --hold -e python serialParser.py &
 
 echo 'FLIGHTGEAR STARTING...'
-fgfs --aircraft=Rascal110-JSBSim --generic=file,in,2,inFile,LibelulaXProtocol --timeofday=morning --generic=file,out,2,outFile,LibelulaXProtocol --wind=45:90@3:5 --httpd=8080 --airport=LEMD --altitude=2
+fgfs --aircraft=Rascal110-JSBSim --generic=file,in,3,inFile,LibelulaXProtocol --timeofday=morning --generic=file,out,3,outFile,LibelulaXProtocol --wind=45:90@3:5 --httpd=8080 --airport=LEMD --altitude=2
 
 
