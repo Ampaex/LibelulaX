@@ -8,7 +8,7 @@
 
 
 // Basic aircraft, trainer style.
-static Aircraft aircraftTrainer;
+//static Aircraft globalAircraft;
 
 /** Arguments of 'sim_flight_data' command */
 static struct
@@ -30,12 +30,12 @@ static int funcSimFlightData(int argc, char **argv)
         arg_print_errors(stderr, sim_flight_data_args.end, argv[0]);
         return 1;
     }
-    aircraftTrainer.autopilot.reportPitch(sim_flight_data_args.pitch->dval[0]);
-    aircraftTrainer.autopilot.reportRoll(sim_flight_data_args.roll->dval[0]);
-    //aircraftTrainer.autopilot.reportYaw(sim_flight_data_args.yaw->dval[0]);
-    aircraftTrainer.autopilot.reportCoordinate({sim_flight_data_args.latitude->dval[0],sim_flight_data_args.longitude->dval[0],sim_flight_data_args.altitude->dval[0]});
-    aircraftTrainer.autopilot.reportCompass(sim_flight_data_args.compass->dval[0]);
-    aircraftTrainer.printActuators();
+    globalAircraft.autopilot.reportPitch(sim_flight_data_args.pitch->dval[0]);
+    globalAircraft.autopilot.reportRoll(sim_flight_data_args.roll->dval[0]);
+    //globalAircraft.autopilot.reportYaw(sim_flight_data_args.yaw->dval[0]);
+    globalAircraft.autopilot.reportCoordinate({sim_flight_data_args.latitude->dval[0],sim_flight_data_args.longitude->dval[0],sim_flight_data_args.altitude->dval[0]});
+    globalAircraft.autopilot.reportCompass(sim_flight_data_args.compass->dval[0]);
+    globalAircraft.printActuators();
     return 0;
 }
 

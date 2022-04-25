@@ -52,3 +52,5 @@ public:
     //Return the altitude
     float getAltitude();
 };
+
+extern Aircraft globalAircraft;

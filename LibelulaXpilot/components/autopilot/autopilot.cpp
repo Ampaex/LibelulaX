@@ -3,8 +3,6 @@
 #include "aircraft.hpp"
 #include "esp_log.h"
 
-#define N_ORBITPOINTS 16 //Number of orbit points.
-
 static GPS_coordinate nextWaypoint;
 
 struct update_args
@@ -138,10 +136,9 @@ Autopilot::Autopilot(Aircraft *pAircraft, ApStateMachine_t initialState) : aircr
                                                                            speed(1, -1, 0.003, 0.0005, 0.002, &(pAircraft->throttle)),
                                                                            altitudeControl(20, -20, 0.09, 0.0003, 0.06, &pitch)
 {
-    static update_args pArgs = {this, pAircraft};
+    
     speed.disable();
-    yaw.disable(); // Will be enabled on the to_checkpoint state
-    xTaskCreate((TaskFunction_t)&taskUpdateAutopilot, "Autopilot_update", 2048, &pArgs, 5, &updateHandler);
+    disablePathTracking();
 
     vector<GPS_coordinate> path = {{40.47644, -3.51327}, {40.50240, -3.51499}, {40.48792, -3.62282}};
     gps.appendPath(path); // TODO: Remove artificial coordinate
@@ -163,6 +160,10 @@ void Autopilot::enable()
 {
     enabled = true;
     currentState = INIT;
+    if(updateHandler == NULL){
+        static update_args pArgs = {this, aircraft};
+        xTaskCreate((TaskFunction_t)&taskUpdateAutopilot, "Autopilot_update", 2048, &pArgs, 5, &updateHandler);
+    }
     vTaskResume(updateHandler);
 }
 

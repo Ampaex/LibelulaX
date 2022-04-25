@@ -1,6 +1,8 @@
 #include "aircraft.hpp"
 #include "esp_log.h"
 
+Aircraft globalAircraft;
+
 Aircraft::Aircraft() : controlMode(AUTOMATIC),
                        autopilot(this),
                        elevator(0.),
