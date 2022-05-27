@@ -6,10 +6,6 @@
 #include "esp_log.h"
 #include "aircraft.hpp"
 
-
-// Basic aircraft, trainer style.
-//static Aircraft globalAircraft;
-
 /** Arguments of 'sim_flight_data' command */
 static struct
 {
