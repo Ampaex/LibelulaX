@@ -64,7 +64,7 @@ void taskUpdateAutopilot(update_args *pArgs)
             _autopilot->setAltitudeControl(350.); // Target altitude
             _aircraft->setThrottle(0.9);
             break;
-
+            
         case STABLE:
             if (_aircraft->altitude > 350. && _aircraft->altitude < 360.)
             {

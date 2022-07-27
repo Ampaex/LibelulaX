@@ -130,10 +130,6 @@ float GPS::compassBetweenCoord(GPS_coordinate coord_A, GPS_coordinate coord_B)
 {
     GPS_coordinate _A = coord_A.toRadians();
     GPS_coordinate _B = coord_B.toRadians();
-    /*double latGradient = log(tan(_B.latitude / 2. + M_PI_4) / tan(_A.latitude / 2. + M_PI_4));
-    double longGradient = fabs(_A.longitude - _B.longitude);
-    if(longGradient>180) longGradient = fmod(longGradient, 180);
-    float bearing = atan2(longGradient, latGradient);*/
 
     double y = sin(_B.longitude - _A.longitude) * cos(_B.latitude);
     double x = cos(_A.latitude) * sin(_B.latitude) -
@@ -149,8 +145,6 @@ double GPS::distanceBetweenCoord(GPS_coordinate coord_A, GPS_coordinate coord_B)
     GPS_coordinate _A = coord_A.toRadians();
     GPS_coordinate _B = coord_B.toRadians();
 
-    // return EARTH_RADIUS * acos(sin(_A.latitude) * sin(_B.latitude) + cos(_A.latitude) * cos(_B.latitude) * cos(_A.longitude - _B.longitude));
-
     // Haversine Formula
     double dlong = _B.longitude - _A.longitude;
     double dlat = _B.latitude - _A.latitude;
@@ -163,7 +157,6 @@ double GPS::distanceBetweenCoord(GPS_coordinate coord_A, GPS_coordinate coord_B)
 
     // Radius of Earth in
     // Kilometers, R = 6371
-    // Use R = 3956 for miles
     long double R = 6371;
 
     // Calculate the result
@@ -171,3 +164,4 @@ double GPS::distanceBetweenCoord(GPS_coordinate coord_A, GPS_coordinate coord_B)
 
     return ans;
 }
+
