@@ -5,6 +5,7 @@
 #include "esp_console.h"
 #include "esp_log.h"
 #include "aircraft.hpp"
+#include "noiseLib.hpp"
 
 /** Arguments of 'sim_flight_data' command */
 static struct
@@ -26,10 +27,28 @@ static int funcSimFlightData(int argc, char **argv)
         arg_print_errors(stderr, sim_flight_data_args.end, argv[0]);
         return 1;
     }
-    globalAircraft.autopilot.reportPitch(sim_flight_data_args.pitch->dval[0]);
-    globalAircraft.autopilot.reportRoll(sim_flight_data_args.roll->dval[0]);
+
+    //Simulation noise
+    #if defined(CONFIG_NOISE_ENABLE) && defined(CONFIG_NOISE_AMPLITUDE) && defined(CONFIG_PITCHNOISE_ENABLE)
+        globalAircraft.autopilot.reportPitch(sim_flight_data_args.pitch->dval[0] + getWhiteNoiseNumber(CONFIG_NOISE_AMPLITUDE));
+    #else
+        globalAircraft.autopilot.reportPitch(sim_flight_data_args.pitch->dval[0]);
+    #endif
+
+    #if defined(CONFIG_NOISE_ENABLE) && defined(CONFIG_NOISE_AMPLITUDE) && defined(CONFIG_ROLLNOISE_ENABLE)
+        globalAircraft.autopilot.reportPitch(sim_flight_data_args.roll->dval[0] + getWhiteNoiseNumber(CONFIG_NOISE_AMPLITUDE)));
+    #else
+        globalAircraft.autopilot.reportRoll(sim_flight_data_args.roll->dval[0]);
+    #endif
+
+    #if defined(CONFIG_NOISE_ENABLE) && defined(CONFIG_NOISE_AMPLITUDE) && defined(CONFIG_HEIGHTNOISE_ENABLE)
+        globalAircraft.autopilot.reportCoordinate({sim_flight_data_args.latitude->dval[0],sim_flight_data_args.longitude->dval[0],sim_flight_data_args.altitude->dval[0] + getWhiteNoiseNumber(CONFIG_NOISE_AMPLITUDE)});
+    #else
+        globalAircraft.autopilot.reportCoordinate({sim_flight_data_args.latitude->dval[0],sim_flight_data_args.longitude->dval[0],sim_flight_data_args.altitude->dval[0]});
+    #endif
+ 
     //globalAircraft.autopilot.reportYaw(sim_flight_data_args.yaw->dval[0]);
-    globalAircraft.autopilot.reportCoordinate({sim_flight_data_args.latitude->dval[0],sim_flight_data_args.longitude->dval[0],sim_flight_data_args.altitude->dval[0]});
+    
     globalAircraft.autopilot.reportCompass(sim_flight_data_args.compass->dval[0]);
     globalAircraft.printActuators();
     return 0;
@@ -37,6 +56,7 @@ static int funcSimFlightData(int argc, char **argv)
 
 void register_sim(void)
 {
+    randomInit();
     sim_flight_data_args.pitch = arg_dbl1(NULL, "pit", "<double>", "Pitch");
     sim_flight_data_args.roll = arg_dbl1(NULL, "rol", "<double>", "Roll");
     sim_flight_data_args.yaw = arg_dbl1(NULL, "yaw", "<double>", "Yaw");

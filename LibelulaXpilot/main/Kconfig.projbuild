@@ -1,11 +1,49 @@
-menu "APPLICATION"
-    menu "Console"
+menu "LIBELULAX"
+    menu "Simulation"
             
         config CONSOLE_ENABLE
             bool "Enable console"
             default y
             help
-                It enables the console for debugging or simulating.
+                It enables the serial console for debugging or simulating.
+
+        menu "Noise"
+
+            config NOISE_ENABLE
+                bool "Enable noise in sensors"
+                default n
+                help
+                    This feature will generate random noise in the aircraft sensors readings during the simulation.
+            
+            config NOISE_AMPLITUDE
+                depends on NOISE_ENABLE
+                int "Maximum level of noise (/100)"
+                default 1
+                help
+                    The maximum value that can generate the noise generator.
+            
+            config PITCHNOISE_ENABLE
+                depends on NOISE_ENABLE
+                bool "Enable PITCH noise"
+                default n
+                help
+                    Enable the pitch sensor alteration using noise.
+
+            config ROLLNOISE_ENABLE
+                depends on NOISE_ENABLE
+                bool "Enable ROLL noise"
+                default n
+                help
+                    Enable the roll sensor alteration using noise.
+
+            config HEIGHTNOISE_ENABLE
+                depends on NOISE_ENABLE
+                bool "Enable HEIGHT noise"
+                default n
+                help
+                    Enable the height sensor alteration using noise.
+
+        endmenu    
 
     endmenu
 

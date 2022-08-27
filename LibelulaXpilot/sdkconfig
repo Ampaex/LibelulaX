@@ -132,21 +132,31 @@ CONFIG_PARTITION_TABLE_MD5=y
 # end of Partition Table
 
 #
-# APPLICATION
+# LIBELULAX
 #
 
 #
-# Console
+# Simulation
 #
 CONFIG_CONSOLE_ENABLE=y
-# end of Console
+
+#
+# Noise
+#
+CONFIG_NOISE_ENABLE=y
+CONFIG_NOISE_AMPLITUDE=50
+CONFIG_PITCHNOISE_ENABLE=y
+# CONFIG_ROLLNOISE_ENABLE is not set
+# CONFIG_HEIGHTNOISE_ENABLE is not set
+# end of Noise
+# end of Simulation
 
 #
 # Autopilot
 #
 CONFIG_AP_UPDATE_PERIOD=250
 # end of Autopilot
-# end of APPLICATION
+# end of LIBELULAX
 
 #
 # Compiler options

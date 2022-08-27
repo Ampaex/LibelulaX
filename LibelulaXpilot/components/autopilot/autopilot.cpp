@@ -10,6 +10,7 @@ struct update_args
     Autopilot *autopilot_arg;
     Aircraft *aircraft_arg;
 };
+
 void taskUpdateAutopilot(update_args *pArgs)
 {
     Autopilot *_autopilot = pArgs->autopilot_arg;
@@ -64,7 +65,7 @@ void taskUpdateAutopilot(update_args *pArgs)
             _autopilot->setAltitudeControl(350.); // Target altitude
             _aircraft->setThrottle(0.9);
             break;
-            
+
         case STABLE:
             if (_aircraft->altitude > 350. && _aircraft->altitude < 360.)
             {
