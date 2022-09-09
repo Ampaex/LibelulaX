@@ -36,7 +36,7 @@ static int funcSimFlightData(int argc, char **argv)
     #endif
 
     #if defined(CONFIG_NOISE_ENABLE) && defined(CONFIG_NOISE_AMPLITUDE) && defined(CONFIG_ROLLNOISE_ENABLE)
-        globalAircraft.autopilot.reportPitch(sim_flight_data_args.roll->dval[0] + getWhiteNoiseNumber(CONFIG_NOISE_AMPLITUDE)));
+        globalAircraft.autopilot.reportRoll(sim_flight_data_args.roll->dval[0] + getWhiteNoiseNumber(CONFIG_NOISE_AMPLITUDE));
     #else
         globalAircraft.autopilot.reportRoll(sim_flight_data_args.roll->dval[0]);
     #endif
@@ -48,8 +48,13 @@ static int funcSimFlightData(int argc, char **argv)
     #endif
  
     //globalAircraft.autopilot.reportYaw(sim_flight_data_args.yaw->dval[0]);
-    
-    globalAircraft.autopilot.reportCompass(sim_flight_data_args.compass->dval[0]);
+
+    #if defined(CONFIG_NOISE_ENABLE) && defined(CONFIG_NOISE_AMPLITUDE) && defined(CONFIG_COMPASSNOISE_ENABLE)
+        globalAircraft.autopilot.reportCompass(sim_flight_data_args.compass->dval[0] + getWhiteNoiseNumber(CONFIG_NOISE_AMPLITUDE));
+    #else
+        globalAircraft.autopilot.reportCompass(sim_flight_data_args.compass->dval[0]);
+    #endif
+
     globalAircraft.printActuators();
     return 0;
 }

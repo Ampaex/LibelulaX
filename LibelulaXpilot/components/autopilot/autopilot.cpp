@@ -17,6 +17,8 @@ void taskUpdateAutopilot(update_args *pArgs)
     Aircraft *_aircraft = pArgs->aircraft_arg;
     float distance;
     int orbitCounter = 0;
+    float minDistance = 1000; //TODO: Delete the minimum measurement
+    float minCalc = 1000; //TODO: QUITAR
     while (true)
     {
         switch (_autopilot->getCurrentState())
@@ -79,6 +81,7 @@ void taskUpdateAutopilot(update_args *pArgs)
         case NEW_CHECKPOINT:
             _autopilot->enablePathTracking();
             _aircraft->setThrottle(0.9);
+            ESP_LOGI(__func__,"####MINIMUM DISTANCE = %f\n", minDistance); //TODO: QUITAR
             if (_autopilot->gps.getPathSize() < 1)
             {
                 nextWaypoint = _autopilot->gps.getHome();
@@ -97,6 +100,8 @@ void taskUpdateAutopilot(update_args *pArgs)
 
         case TO_CHECKPOINT:
             distance = _autopilot->gps.distanceToCoord(nextWaypoint);
+            minCalc =  _autopilot->gps.distanceToCoord({40.50240, -3.51499}); //TODO: QUITAR
+            if(minCalc<minDistance)minDistance=minCalc; //TODO: QUITAR
             if (distance < 0.08) // If we're closer than 80m go to the next checkpoint
             {
                 _autopilot->setCurrentState(NEW_CHECKPOINT);
@@ -163,7 +168,7 @@ void Autopilot::enable()
     currentState = INIT;
     if(updateHandler == NULL){
         static update_args pArgs = {this, aircraft};
-        xTaskCreate((TaskFunction_t)&taskUpdateAutopilot, "Autopilot_update", 2048, &pArgs, 5, &updateHandler);
+        xTaskCreate((TaskFunction_t)&taskUpdateAutopilot, "Autopilot_update", 4096, &pArgs, 5, &updateHandler);
     }
     vTaskResume(updateHandler);
 }

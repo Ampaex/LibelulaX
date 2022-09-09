@@ -2,8 +2,6 @@
 
 #include <freertos/FreeRTOS.h>
 
-// TODO: Utilizar una cola para utilizar la media de error acumulado
-
 class PID
 {
 private:

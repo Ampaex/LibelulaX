@@ -35,6 +35,13 @@ menu "LIBELULAX"
                 default n
                 help
                     Enable the roll sensor alteration using noise.
+    
+            config COMPASSNOISE_ENABLE
+                depends on NOISE_ENABLE
+                bool "Enable COMPASS noise"
+                default n
+                help
+                    Enable the compass sensor alteration using noise.
 
             config HEIGHTNOISE_ENABLE
                 depends on NOISE_ENABLE
