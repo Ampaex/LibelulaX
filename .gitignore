@@ -34,3 +34,6 @@
 # Python middleware
 inFile
 outFile
+
+#Visual Studio Code
+.vscode/*
